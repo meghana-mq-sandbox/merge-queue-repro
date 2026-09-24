@@ -1,0 +1,17 @@
+steps:
+  - label: ":x: check"
+    key: check
+    agents: { queue: aws }
+    command: |
+      echo "branch: $BUILDKITE_BRANCH"
+      if [ -f CULPRIT ] && [[ "$BUILDKITE_BRANCH" == *"/pr-$(cat CULPRIT)-"* ]]; then
+        echo "This merge group is headed by the culprit PR #$(cat CULPRIT), failing"
+        exit 1
+      fi
+      echo "not the culprit group, passing"
+
+  - label: ":hourglass: slow"
+    agents: { queue: aws }
+    command: |
+      if [[ "$BUILDKITE_BRANCH" == gh-readonly-queue/* ]]; then sleep 180; fi
+      echo done
